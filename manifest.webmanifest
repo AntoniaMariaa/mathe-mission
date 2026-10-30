@@ -1,0 +1,17 @@
+{
+  "name": "Mathe-Mission MSA",
+  "short_name": "Mathe-Mission",
+  "description": "Lernspiel zu Funktionen für die MSA-Vorbereitung",
+  "lang": "de",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0d0b26",
+  "theme_color": "#0d0b26",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

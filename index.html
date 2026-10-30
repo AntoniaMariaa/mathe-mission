@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mathe-Mission MSA</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0d0b26">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mathe-Mission">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#0d0b26;--panel:#1b1747;--line:#3a3480;--tx:#f2eeff;--mute:#b4acdd;--ok:#4ade80;--bad:#fb7185;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+body{margin:0;min-height:100vh;color:var(--tx);font-family:Fredoka,system-ui,sans-serif;background:radial-gradient(120% 80% at 70% 0%,#2a1f6b 0%,var(--bg) 60%) fixed}
+#stars{position:fixed;inset:0;pointer-events:none}
+#stars i{position:absolute;border-radius:50%;background:#fff}
+main{position:relative;max-width:520px;margin:0 auto;padding:14px 16px 24px}
+.hud{display:flex;justify-content:space-between;align-items:center;font-size:18px}
+h1,h2{margin:4px 0;font-weight:600}
+h1{font-size:24px}h2{font-size:22px}
+.map{position:relative;height:min(66vh,540px);margin-top:6px}
+.pl{position:absolute;width:30%;transform:translate(-50%,-50%);background:none;border:0;color:inherit;font:inherit;cursor:pointer;padding:0;text-align:center}
+.pl svg{width:100%;display:block;filter:drop-shadow(0 0 14px var(--g))}
+.pl b{display:block;font-weight:600;font-size:16px}
+.pl small{color:var(--mute);font-size:12px;display:block;line-height:1.2}
+.home{position:absolute;font-size:34px;transform:translate(-50%,-50%)}
+.astro{position:absolute;font-size:38px;transform:translate(-50%,-50%);transition:left 1.1s ease-in-out,top 1.1s ease-in-out;pointer-events:none}
+button:focus-visible{outline:3px solid #fff;outline-offset:3px;border-radius:12px}
+.card{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:18px;margin-top:14px}
+.q{font-size:20px;line-height:1.45;margin:0 0 14px}
+.opts{display:grid;gap:10px}
+.opt{font:inherit;font-size:18px;text-align:left;padding:14px 16px;border-radius:14px;border:2px solid var(--line);background:#241f5c;color:var(--tx);cursor:pointer;min-height:52px}
+.opt.ok{border-color:var(--ok);background:#12391f}
+.opt.bad{border-color:var(--bad);background:#4a1423}
+.fb{margin-top:12px;color:var(--mute);line-height:1.5;min-height:1.5em}
+.go{font:inherit;font-size:18px;font-weight:600;border:0;border-radius:14px;padding:13px 22px;background:var(--c,#7dd3fc);color:#10122e;cursor:pointer;margin-top:14px}
+.bar{height:8px;background:#2b2570;border-radius:6px;overflow:hidden;margin:10px 0 4px}
+.bar i{display:block;height:100%;background:var(--c);width:0;transition:width .3s}
+.note{color:var(--mute);font-size:13px;margin:8px 0}
+.hide{display:none}
+#fin{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(12px + env(safe-area-inset-bottom,0px));background:#0a0820e6}
+#fin.hide{display:none}
+#rain{position:absolute;inset:0;width:100%;height:100%}
+.fcard{position:relative;width:100%;max-width:420px;max-height:100%;overflow:auto;background:#1b1747f0;border:2px solid var(--line);border-radius:20px;padding:18px;text-align:center}
+#fform{display:flex;gap:8px;margin:10px 0}
+#fform.hide{display:none}
+#fname{flex:1;min-width:0;font:inherit;font-size:18px;padding:12px;border-radius:12px;border:2px solid var(--line);background:#241f5c;color:var(--tx)}
+#fboard{margin:10px 0;font-size:17px;line-height:1.8;text-align:left}
+.r{display:flex;justify-content:space-between;gap:10px;padding:0 8px;border-radius:8px}
+.r.me{background:#fbbf2433}
+.frow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.tcs{display:grid;gap:14px;margin-top:16px}
+.tc{font:inherit;color:#fff;border:2px solid #ffffff55;border-radius:20px;padding:18px 16px;text-align:left;cursor:pointer;display:grid;grid-template-columns:64px 1fr;align-items:center;column-gap:14px}
+.tc .ti{font-size:44px;grid-row:span 2}
+.tc b{font-size:22px;font-weight:600}
+.tc small{font-size:15px;opacity:.9}
+#cv{display:block;width:100%;height:auto;border-radius:16px;border:2px solid var(--line);margin-top:6px;background:#000}
+.pad{display:flex;justify-content:center;align-items:center;gap:22px;margin-top:10px}
+.dp{display:grid;grid-template-columns:repeat(3,62px);grid-template-rows:repeat(2,58px);gap:6px}
+.pad button{font-size:26px;border-radius:16px;border:2px solid var(--line);background:#241f5c;color:var(--tx);touch-action:none;user-select:none;-webkit-user-select:none;cursor:pointer}
+#bu{grid-column:2;grid-row:1}#bl{grid-column:1;grid-row:2}#bd{grid-column:2;grid-row:2}#br{grid-column:3;grid-row:2}
+#bj{width:104px;height:104px;border-radius:50%;font:600 17px Fredoka,system-ui,sans-serif}
+.mu{font:inherit;background:none;border:2px solid var(--line);color:var(--tx);border-radius:10px;padding:2px 10px;cursor:pointer}
+.pad button.on{background:var(--c);color:#10122e}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;max-height:88vh;overflow:auto;border-radius:20px 20px 0 0;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px));box-shadow:0 -12px 40px #000a;z-index:5}
+@media (prefers-reduced-motion:reduce){.astro,.bar i{transition:none}}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<main>
+<section id="vlevel"><h1>Mathe-Mission</h1><p class="note">Auf welchem Level möchtest du spielen?</p><div class="tcs" id="lcs"></div></section>
+<section id="vtheme" class="hide"><h1>Mathe-Mission</h1><p class="note">Wähle deine Welt. Die Aufgaben sind in jeder Welt gleich.</p><div class="tcs" id="tcs"></div></section>
+<section id="vmap" class="hide">
+  <div class="hud"><h1>Mathe-Mission</h1><span id="cr">💎 0 von 3</span></div>
+  <p class="note" id="mapnote"></p>
+  <div class="map" id="map"></div>
+  <div class="card hide" id="win"><p class="q">Mission geschafft! Alle drei Kristalle sind an Bord.</p><button class="go" id="again">Nochmal spielen</button></div>
+  <p class="note">Eigene Übungsaufgaben im Stil des MSA, keine offiziellen Prüfungsaufgaben. <button class="mu" id="chg">Welt wechseln</button></p>
+</section>
+<section id="vquiz" class="hide">
+  <h2 id="qt"></h2>
+  <div class="bar"><i id="qb"></i></div>
+  <p class="note" id="qn"></p><canvas id="cv" aria-label="Landschaft des Planeten"></canvas><div class="pad"><div class="dp"><button id="bu" aria-label="Nach oben">▲</button><button id="bl" aria-label="Nach links">◀</button><button id="bd" aria-label="Nach unten">▼</button><button id="br" aria-label="Nach rechts">▶</button></div><button id="bj" aria-label="Springen">Sprung</button></div><p class="note"><span id="qhint"></span> <button class="mu" id="mu" aria-label="Ton an oder aus">🔊</button></p>
+  <div class="card sheet hide" id="qc">
+    <div id="gr"></div><p class="q" id="qq"></p>
+    <div class="opts" id="opts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <button class="go hide" id="next">Weiter</button>
+  </div>
+  <div class="card hide" id="res"><h2 id="rt"></h2><p class="q" id="rp"></p><button class="go" id="back">Zurück zur Karte</button></div>
+</section>
+</main>
+<div id="fin" class="hide" role="dialog" aria-modal="true" aria-label="Rangliste"><canvas id="rain" aria-hidden="true"></canvas><div class="fcard"><h2>Mission geschafft!</h2><p class="q" id="ftime"></p><div id="fform"><input id="fname" maxlength="16" placeholder="Dein Name" autocomplete="off" aria-label="Dein Name"><button class="go" id="fsave">Eintragen</button></div><div id="fboard"></div><p class="note">Es gibt eine eigene Rangliste für jedes Level. Sie wird nur auf diesem Gerät gespeichert.</p><div class="frow"><button class="go" id="fagain">Nochmal spielen</button><button class="mu" id="fmap">Zur Karte</button></div></div></div>
+<script>
+const $=s=>document.querySelector(s);
+const ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const nz=(a,b)=>{let v;do v=ri(a,b);while(!v);return v};
+const pick=a=>a[ri(0,a.length-1)];
+const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
+const fmt=n=>String(parseFloat(n.toFixed(2))).replace('.',',').replace('-','−');
+const par=n=>n<0?'('+fmt(n)+')':fmt(n);
+const sup=n=>String(n).replace(/\d/g,d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[d]);
+const sg=n=>n<0?' − '+fmt(-n):' + '+fmt(n);
+const bx=b=>b==1?' + x':b==-1?' − x':sg(b)+'x';
+const lin=(m,n)=>(m==1?'':m==-1?'−':fmt(m))+'x'+(n?sg(n):'');
+const qd=(a,b,c)=>(a==1?'':a==-1?'−':fmt(a))+'x²'+(b?bx(b):'')+(c?sg(c):'');
+const id=x=>x;
+
+function mk(q,a,ds,e,f=fmt){
+  const o=[f(a)],s=new Set(o);
+  ds.forEach(d=>{const t=f(d);if(!s.has(t)){s.add(t);o.push(t)}});
+  for(let k=1;o.length<4&&typeof a=='number';k++){const t=f(a+k);if(!s.has(t)){s.add(t);o.push(t)}}
+  return {q,a:o[0],o:shuffle([o[0],...o.slice(1,4)]),e};
+}
+
+const S=(u,v)=>`S(${fmt(u)}|${fmt(v)})`;
+const Pt=(u,v)=>`(${fmt(u)}|${fmt(v)})`;
+const sf=(a,d,e)=>`y = ${a<0?'−':''}${d?`(x ${d>0?'−':'+'} ${Math.abs(d)})²`:'x²'}${e?sg(e):''}`;
+const pr2=(a,b)=>{const s=[a,b].sort((u,v)=>u-v);return `x₁ = ${fmt(s[0])}, x₂ = ${fmt(s[1])}`};
+const graph=(a,d,e)=>graphF(x=>a*(x-d)**2+e,'#fbbf24');
+function graphF(fn,col){
+  let s='<svg viewBox="0 0 264 286" role="img" aria-label="Gezeichnete Parabel im Koordinatensystem" style="width:100%;max-width:250px;display:block;margin:0 auto 12px;border-radius:12px;background:#12103a">';
+  for(let i=-6;i<=6;i++)s+=`<path d="M${(i+6)*22} 0V286" stroke="#ffffff22"/>`;
+  for(let j=-5;j<=8;j++)s+=`<path d="M0 ${(8-j)*22}H264" stroke="#ffffff22"/>`;
+  s+='<path d="M132 0V286M0 176H264" stroke="#ffffffaa" stroke-width="1.5"/>';
+  for(let i=-6;i<=6;i++)if(i)s+=`<text x="${(i+6)*22}" y="190" font-size="9" fill="#b4acdd" text-anchor="middle">${fmt(i)}</text>`;
+  for(let j=-5;j<=8;j++)if(j)s+=`<text x="127" y="${(8-j)*22+3}" font-size="9" fill="#b4acdd" text-anchor="end">${fmt(j)}</text>`;
+  let pts='';for(let x=-6;x<=6.001;x+=.1)pts+=`${((x+6)*22).toFixed(1)},${((8-fn(x))*22).toFixed(1)} `;
+  return s+`<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="3"/></svg>`;
+}
+
+const G={
+lin:[
+()=>{const q=1,p=pick([1,2,-1,-2]),m=p/q,n=nz(-3,3),x1=q*ri(-2,0),j=pick([1,2]),x2=x1+q*j,y1=m*x1+n,y2=m*x2+n,eq=(a,b)=>`y = ${lin(a,b)}`;
+  return mk(`Die Gerade g verläuft durch die Punkte K${Pt(x1,y1)} und L${Pt(x2,y2)}. Welche Gleichung gehört zu g?`,eq(m,n),[eq(m,-n),eq(-m,n),eq(m,n+1)],`Steigung m = (y₂ − y₁) : (x₂ − x₁) = ${fmt(y2-y1)} : ${fmt(x2-x1)} = ${fmt(m)}. Mit K eingesetzt folgt n = ${fmt(n)}.`,id)},
+()=>{const m=pick([.5,-.5,2,-2,3]),n=nz(-3,3),u=m%1?2:1,x=u*nz(-4,4),v=m*x+n;
+  return mk(`Der Punkt A(${fmt(x)}|y) liegt auf der Geraden g mit y = ${lin(m,n)}. Berechne die y-Koordinate von A.`,v,[m*x-n,-m*x+n,v+1],`Setze x = ${fmt(x)} ein: ${fmt(m)}·${par(x)}${sg(n)} = ${fmt(v)}.`)},
+()=>{const m=pick([-2,-1,1,2]),r=nz(-4,4),n=-m*r;
+  return mk(`Gib die Nullstelle der Funktion f(x) = ${lin(m,n)} an.`,r,[-r,n,m],`Setze f(x) = 0: ${fmt(m)}x${sg(n)} = 0, also x = ${fmt(r)}.`,v=>'x = '+fmt(v))},
+()=>{const m=pick([1,-1,2,-2,3,-3]),n=nz(-5,5);
+  return mk(`Die Gerade y = ${lin(m,n)} schneidet die y-Achse. In welchem Punkt?`,Pt(0,n),[Pt(n,0),Pt(0,-n),Pt(0,m)],`Auf der y-Achse ist x = 0. Dann bleibt y = n = ${fmt(n)}.`,id)},
+()=>{const m=pick([-3,-2,-1,1,2,3]),n=nz(-3,3),t=Math.random()<.5,x=nz(-3,3),y=m*x+n;
+  const Q=[[`Der Punkt Q${Pt(x,t?y:y+pick([-2,-1,1,2]))} liegt auf dem Graphen.`,`Einsetzen: ${fmt(m)}·${par(x)}${sg(n)} = ${fmt(y)}.`],
+    [`Der Graph ist monoton ${(m>0)==t?'steigend':'fallend'}.`,`Die Steigung m = ${fmt(m)} ist ${m>0?'positiv, also steigt':'negativ, also fällt'} der Graph.`],
+    [`Der Graph schneidet die y-Achse im Punkt ${t?Pt(0,n):Pt(n,0)}.`,`Die y-Achse wird bei (0|n) = ${Pt(0,n)} geschnitten.`]][ri(0,2)];
+  return mk(`Gegeben ist die Funktion f mit y = ${lin(m,n)}. Stimmt die Aussage? ${Q[0]}`,t?'wahr':'falsch',[t?'falsch':'wahr'],Q[1],id)},
+()=>{const m=pick([-3,-2,-1,1,2,3]),n=nz(-3,3);
+  return {...mk('Welche Gleichung gehört zur gezeichneten Geraden?',`y = ${lin(m,n)}`,[`y = ${lin(m,-n)}`,`y = ${lin(-m,n)}`,`y = ${lin(n,m)}`],`Lies den y-Achsenabschnitt n = ${fmt(n)} ab und die Steigung m = ${fmt(m)}: einen Schritt nach rechts, dann hoch oder runter.`,id),gr:graphF(x=>m*x+n,'#7dd3fc')}},
+()=>{const w=ri(0,2);
+  if(w==2){const r=nz(-4,4),k=pick([-2,-1,1,2]);return {...mk('Welche Nullstelle hat die gezeichnete Gerade?',r,[-r,-k*r,k],`Die Nullstelle ist der Schnittpunkt mit der x-Achse: x = ${fmt(r)}.`,v=>'x = '+fmt(v)),gr:graphF(x=>k*(x-r),'#7dd3fc')}}
+  const m=pick([-3,-2,-1,1,2,3]),n=nz(-3,3),g=graphF(x=>m*x+n,'#7dd3fc');
+  if(w==0)return {...mk('Welche Steigung hat die gezeichnete Gerade?',m,[-m,m+1,m-1],`Einen Schritt nach rechts: Die Gerade ${m>0?'steigt':'fällt'} um ${fmt(Math.abs(m))}. Also m = ${fmt(m)}.`),gr:g};
+  return {...mk('In welchem Punkt schneidet die gezeichnete Gerade die y-Achse?',Pt(0,n),[Pt(n,0),Pt(0,-n),Pt(0,m)],`Lies ab, wo die Gerade die y-Achse kreuzt: ${Pt(0,n)}.`,id),gr:g}},
+()=>{const c=nz(-5,5);
+  return mk('Welche Gleichung gehört zu einer Geraden parallel zur x-Achse?',`y = ${fmt(c)}`,[`x = ${fmt(c)}`,`y = ${fmt(c)}x`,`y = x${sg(c)}`],`Parallel zur x-Achse heißt: Der y-Wert ist überall gleich. Also y = ${fmt(c)}.`,id)},
+()=>{const k=pick([2,3,4,5]),g=pick([10,20,50,100]),bus=Math.random()<.5,e=(a,b)=>`K(x) = ${fmt(a)}x${sg(b)}`;
+  return mk(bus?`Ein Busunternehmen verlangt ${g} € Grundpreis und ${fmt(k)} € pro gefahrenem Kilometer. Wie lautet die Funktionsgleichung für die Kosten K bei x Kilometern?`:`Ein Mietwagen kostet einmalig ${g} € pro Woche, dazu ${fmt(k)} € für jeden Kilometer. Wie lautet die Gleichung für die Gesamtkosten K bei x Kilometern?`,e(k,g),[`K(x) = ${fmt(g)}x${sg(k)}`,e(k,-g),`K(x) = ${fmt(k+g)}x`],`Kosten = Preis pro km · x + fester Betrag: K(x) = ${fmt(k)}·x + ${g}.`,id)},
+()=>{let g,k1,k2,s;do{g=pick([100,200]);k1=pick([1,2]);k2=k1+pick([1,2]);s=pick([50,100,200])}while(Math.abs(g+k1*s-k2*s)<1);
+  const A=g+k1*s,B=k2*s;
+  return mk(`Sonnenschein: ${g} € Grundpreis und ${fmt(k1)} € pro km. Reiselust: kein Grundpreis, ${fmt(k2)} € pro km. Welches Unternehmen ist bei ${s} km günstiger?`,A<B?'Sonnenschein':'Reiselust',[A<B?'Reiselust':'Sonnenschein'],`Sonnenschein: ${g} + ${fmt(k1)}·${s} = ${fmt(A)} €. Reiselust: ${fmt(k2)}·${s} = ${fmt(B)} €.`,id)},
+()=>{let p,F,c1,W,c2,s,A,B;do{p=pick([10,20]);F=pick([100,200]);c1=pick([.5,1]);W=pick([50,100]);c2=pick([.1,.2]);s=pick([300,400]);A=3*p+(s-F)*c1;B=W+s*c2}while(Math.abs(A-B)<1);
+  return mk(`Mietwagen für 3 Tage und ${s} km. Angebot 1: ${p} € pro Tag, ${F} km frei, jeder weitere km kostet ${fmt(c1)} €. Angebot 2: einmalig ${W} € pro Woche, dazu ${fmt(c2)} € pro km. Welches Angebot ist günstiger?`,A<B?'Angebot 1':'Angebot 2',[A<B?'Angebot 2':'Angebot 1'],`Angebot 1: 3·${p} + ${s-F}·${fmt(c1)} = ${fmt(A)} €. Angebot 2: ${W} + ${s}·${fmt(c2)} = ${fmt(B)} €.`,id)},
+()=>{let x,y;do{x=ri(2,5);y=ri(2,5)}while(x==y);const n=x+y,b=3*x+5*y,t=(u,v)=>`${u} Dreibett- und ${v} Fünfbettzimmer`;
+  return mk(`In der Jugendherberge gibt es Dreibett- und Fünfbettzimmer. ${n} Zimmer haben zusammen ${b} Betten. Wie viele Zimmer jeder Sorte sind es?`,t(x,y),[t(y,x),t(x+1,y-1),t(x-1,y+1)],`Gleichungen: x + y = ${n} und 3x + 5y = ${b}. Mit x = ${n} − y eingesetzt folgt y = ${y} und x = ${x}.`,id)},
+()=>{let h,r,t,v;do{h=pick([20,30,40]);r=pick([1,2]);t=pick([5,10]);v=h-r*t}while(v<=0);
+  return mk(`Eine Kerze mit ${h} cm Höhe brennt jede Minute um ${fmt(r)} cm ab. Wie hoch ist sie nach ${t} Minuten?`,v,[h+r*t,r*t,h-r*(t+1)],`Höhe = ${h} − ${fmt(r)}·${t} = ${fmt(v)} cm.`,x=>fmt(x)+' cm')},
+()=>{const h=pick([20,40]),r=pick([2,4,5]),T=h/r;
+  return mk(`Die Gleichung y = −${fmt(r)}x + ${h} beschreibt die Höhe y (in cm) einer Kerze nach x Minuten. Nach welcher Zeit ist die Kerze abgebrannt?`,T,[T+5,h*r,T*2],`Abgebrannt heißt y = 0: −${fmt(r)}x + ${h} = 0, also x = ${h} : ${fmt(r)} = ${fmt(T)}.`,x=>fmt(x)+' Minuten')},
+()=>{const h=pick([20,40]),r=pick([2,4,5]),M=['die Höhe der Kerze am Anfang (in cm)','die Höhe der Kerze nach x Minuten (in cm)','die Brenndauer (in Minuten)','die Abnahme der Höhe pro Minute (in cm)'];
+  const [w,i]=pick([[`die ${h}`,0],['y',1],['x',2],[`die −${fmt(r)}`,3]]);
+  return mk(`Die Gleichung y = −${fmt(r)}x + ${h} beschreibt das Abbrennen einer Kerze. Wofür steht ${w}?`,M[i],M.filter((_,j)=>j!=i),`${h} ist der Wert bei x = 0, x ist die Zeit, y die Höhe zu dieser Zeit und −${fmt(r)} die Änderung pro Minute.`,id)},
+()=>{const [dx,dy]=pick([[3,4],[4,3],[6,8],[8,6]]),x=ri(-3,0),y=ri(-3,0),c=Math.hypot(dx,dy);
+  return mk(`Die Punkte B${Pt(x,y)} und C${Pt(x+dx,y+dy)} liegen im Koordinatensystem. Wie lang ist die Strecke BC?`,c,[dx+dy,Math.abs(dy-dx),c+1],`Pythagoras: BC = √(${dx}² + ${dy}²) = √${dx*dx+dy*dy} = ${c}.`,v=>fmt(v)+' LE')},
+()=>{const s=pick([1,-1]),up=s>0;
+  return mk(`Eine ${up?'steigende':'fallende'} Gerade schneidet die x-Achse unter 45°. Welche Steigung hat sie?`,s,[-s,2*s,0],`Bei 45° ist die Steigung ${up?'1':'−1'}: Man geht 1 nach rechts und ${up?'1 hoch':'1 runter'}.`)},
+()=>mk('Wie lautet die allgemeine Funktionsgleichung einer linearen Funktion?','y = mx + n',['y = ax² + bx + c','y = a·bˣ','y = mx · n'],'Eine lineare Funktion hat die Form y = mx + n. Dabei ist m die Steigung und n der y-Achsenabschnitt.',id),
+()=>{const m=pick([-3,-2,-1,1,2,3,.5,-.5]),n=nz(-6,6);
+  return mk(`Wie groß ist die Steigung der Funktion f(x) = ${lin(m,n)}?`,m,[n,-m,m+1],`Bei y = mx + n ist m die Steigung. Hier ist m = ${fmt(m)}.`)},
+()=>mk('Was ist eine Nullstelle?','Schnittpunkt der Funktion mit der x-Achse',['Schnittpunkt der Funktion mit der y-Achse','Der Funktionswert an der Stelle x = 1','Die Steigung der Funktion'],'Eine Nullstelle ist ein Schnittpunkt der Funktion mit der x-Achse. Dort ist der Funktionswert 0, also f(x) = 0.',id),
+()=>{const m=pick([-3,-2,-1,1,2,3,.5,-.5]),n=nz(-6,6);
+  return mk(`Wie groß ist der y-Achsenabschnitt der Funktion f(x) = ${lin(m,n)}?`,n,[-n,m,n+1],`Bei y = mx + n ist n der y-Achsenabschnitt. Hier ist n = ${fmt(n)}.`)},
+()=>{const m=pick([-3,-2,-1,1,2,3,.5,-.5]),n=nz(-6,6),up=m>0;
+  return mk(`Ist die Funktion f(x) = ${lin(m,n)} monoton fallend oder monoton steigend?`,up?'monoton steigend':'monoton fallend',[up?'monoton fallend':'monoton steigend'],`Die Steigung m = ${fmt(m)} ist ${up?'positiv, also steigt':'negativ, also fällt'} der Graph.`,id)},
+()=>{const m=pick([-3,-2,-1,1,2,3,.5,-.5]),n=nz(-3,3),eq=(a,b)=>`y = ${lin(a,b)}`;
+  return {...mk('Welche Funktionsgleichung gehört zum gezeichneten Graphen?',eq(m,n),[eq(m,-n),eq(-m,n),eq(n,m)],`Der Graph schneidet die y-Achse bei ${fmt(n)}, also n = ${fmt(n)}. Von dort einen Schritt nach rechts: ${m>0?'hoch':'runter'} um ${fmt(Math.abs(m))}${Math.abs(m)<1?' (zwei Schritte nach rechts: 1 '+(m>0?'hoch':'runter')+')':''}, also m = ${fmt(m)}.`,id),gr:graphF(x=>m*x+n,'#7dd3fc')}},
+()=>{const m=pick([-3,-2,-1,1,2,3,.5,-.5]),n=nz(-3,3);
+  return {...mk('Wie groß ist die Steigung des gezeichneten Graphen?',m,[-m,m+1,n],`Gehe von einem Punkt auf dem Graphen ${Math.abs(m)<1?'zwei Schritte':'einen Schritt'} nach rechts. ${Math.abs(m)<1?'Dann':'Dann'} geht es ${m>0?'hoch':'runter'} um ${Math.abs(m)<1?'1':fmt(Math.abs(m))}. Also m = ${fmt(m)}.`),gr:graphF(x=>m*x+n,'#7dd3fc')}},
+()=>{const m=pick([-3,-2,-1,1,2,3,.5,-.5]),n=nz(-3,3);
+  return {...mk('Wie groß ist der y-Achsenabschnitt des gezeichneten Graphen?',n,[-n,m,n+1],`Der y-Achsenabschnitt ist die Stelle, an der der Graph die y-Achse schneidet. Das ist bei y = ${fmt(n)}. Also n = ${fmt(n)}.`),gr:graphF(x=>m*x+n,'#7dd3fc')}},
+()=>{const m=pick([-3,-2,-1,1,2,3,.5,-.5]),n=nz(-6,6),f=pick(['f','g','h']),a=m>0?'steigt':'fällt',ab=fmt(Math.abs(m));
+  return mk(`Gegeben ist die Funktion ${f} mit ${f}(x) = ${lin(m,n)}. Was gilt für Steigung und y-Achsenabschnitt?`,`m = ${fmt(m)} und n = ${fmt(n)}`,[`m = ${fmt(n)} und n = ${fmt(m)}`,`m = ${fmt(-m)} und n = ${fmt(n)}`,`m = ${fmt(m)} und n = ${fmt(-n)}`],`Bei y = mx + n ist m der Faktor vor x und n die Zahl ohne x. Hier: m = ${fmt(m)} und n = ${fmt(n)}.`,id)},
+()=>{const m=pick([-3,-2,-1,1,2,3]),n=nz(-6,6),eq=(a,b)=>`y = ${lin(a,b)}`;
+  return mk(`Eine Gerade hat die Steigung m = ${fmt(m)} und den y-Achsenabschnitt n = ${fmt(n)}. Welche Gleichung gehört zu ihr?`,eq(m,n),[eq(n,m),eq(m,-n),eq(-m,n)],`Setze in y = mx + n ein: m = ${fmt(m)} und n = ${fmt(n)} ergibt y = ${lin(m,n)}.`,id)},
+()=>{const m=pick([-3,-2,-1,1,2,3]),n=nz(-6,6),a=m>0?'steigt':'fällt',ab=fmt(Math.abs(m));
+  return mk(`Eine Gerade hat die Gleichung y = ${lin(m,n)}. Was passiert mit y, wenn x um 1 größer wird?`,`y ${a} um ${ab}`,[`y ${m>0?'fällt':'steigt'} um ${ab}`,`y ${n>0?'steigt':'fällt'} um ${fmt(Math.abs(n))}`,`y bleibt gleich`],`Die Steigung m = ${fmt(m)} gibt an, wie sich y ändert, wenn x um 1 wächst. Also ${a} y um ${ab}.`,id)},
+()=>{const m=pick([-3,-2,-1,1,2,3,.5,-.5]),n=nz(-6,6),f=pick(['f','g','h']);
+  return mk(`Welche Steigung hat die Funktion ${f} mit ${f}(x) = ${lin(m,n)}?`,m,[n,-m,m+1],`Bei y = mx + n ist m die Steigung. Hier ist m = ${fmt(m)}.`)},
+()=>{const m=pick([-3,-2,-1,1,2,3,.5,-.5]),n=nz(-6,6),f=pick(['f','g','h']);
+  return mk(`Welchen y-Achsenabschnitt hat die Funktion ${f} mit ${f}(x) = ${lin(m,n)}?`,n,[-n,m,n+1],`Bei y = mx + n ist n der y-Achsenabschnitt. Hier ist n = ${fmt(n)}.`)},
+()=>{let m,n;do{m=pick([-3,-2,-1,1,2,3]);n=nz(-5,5)}while(m==n||m==-n);const eq=(a,b)=>`y = ${lin(a,b)}`;
+  return mk(`Welche der Geraden hat den y-Achsenabschnitt ${fmt(n)}?`,eq(m,n),[eq(n,m),eq(m,-n),eq(-n,-m)],`Der y-Achsenabschnitt ist die Zahl ohne x, also n. Nur bei ${eq(m,n)} ist n = ${fmt(n)}.`,id)},
+()=>{let m,n;do{m=pick([-3,-2,-1,1,2,3]);n=nz(-5,5)}while(m==n||m==-n);const eq=(a,b)=>`y = ${lin(a,b)}`;
+  return mk(`Welche der Geraden hat die Steigung ${fmt(m)}?`,eq(m,n),[eq(n,m),eq(-m,n),eq(n,-m)],`Die Steigung ist der Faktor vor x, also m. Nur bei ${eq(m,n)} ist m = ${fmt(m)}.`,id)}
+],
+quad:[
+()=>mk('Wie lautet die allgemeine Funktionsgleichung einer quadratischen Funktion in der Scheitelpunktform?','y = a·(x − d)² + e',['y = ax² + bx + c','y = a·(x − d) + e','y = a·(x − d)² · e'],'Die Scheitelpunktform lautet y = a·(x − d)² + e. Der Scheitelpunkt ist S(d|e), und a bestimmt die Öffnung und Form der Parabel.',id),
+()=>mk('Was bewirkt ein anderer positiver Wert von a in y = a·(x − d)² + e, zum Beispiel a = 2 statt a = 1?','Streckung/Stauchung',['Verschiebung nach rechts/links', 'Verschiebung nach oben/unten', 'Spiegelung'],'Der Parameter a streckt oder staucht die Parabel. Bei a > 1 ist sie enger (gestreckt), bei 0 < a < 1 weiter (gestaucht).',id),
+()=>mk('Was bewirkt ein negatives a in y = a·(x − d)² + e, zum Beispiel a = −1?','Spiegelung',['Verschiebung nach rechts/links', 'Verschiebung nach oben/unten', 'Streckung/Stauchung'],'Ist a negativ, wird die Parabel an der x-Achse gespiegelt. Sie ist dann nach unten geöffnet.',id),
+()=>mk('Was bewirkt der Parameter d in y = a·(x − d)² + e?','Verschiebung nach rechts/links',['Verschiebung nach oben/unten', 'Streckung/Stauchung', 'Spiegelung'],'Der Parameter d verschiebt die Parabel nach rechts oder links. Der Scheitelpunkt liegt bei x = d.',id),
+()=>mk('Was bewirkt der Parameter e in y = a·(x − d)² + e?','Verschiebung nach oben/unten',['Verschiebung nach rechts/links', 'Streckung/Stauchung', 'Spiegelung'],'Der Parameter e verschiebt die Parabel nach oben oder unten. Der Scheitelpunkt liegt bei y = e.',id),
+()=>mk('Was ist eine Nullstelle?','Schnittpunkt der Funktion mit der x-Achse',['Schnittpunkt der Funktion mit der y-Achse','Der höchste oder tiefste Punkt der Parabel','Der Funktionswert an der Stelle x = 1'],'Eine Nullstelle ist ein Schnittpunkt der Funktion mit der x-Achse. Dort ist der Funktionswert 0, also f(x) = 0. Eine Parabel hat keine, eine oder zwei Nullstellen.',id),
+()=>mk('Wozu braucht man die pq-Formel?','Um quadratische Gleichungen zu lösen, zum Beispiel die Nullstellen einer Parabel',['Um den Scheitelpunkt einer Parabel abzulesen','Um die Steigung einer Geraden zu berechnen','Um den Wachstumsfaktor zu bestimmen'],'Mit der pq-Formel löst man quadratische Gleichungen der Form x² + px + q = 0. Setzt man f(x) = 0, erhält man so die Nullstellen der Parabel.',id),
+()=>mk('Wie sieht der Graph einer quadratischen Funktion aus?','Eine Parabel (gebogene Kurve, keine Gerade)',['Eine Gerade','Ein Kreis','Eine Zickzack-Linie'],'Der Graph einer quadratischen Funktion ist eine Parabel. Sie ist eine gebogene, symmetrische Kurve mit einem Scheitelpunkt und nach oben oder unten geöffnet.',id),
+()=>{const d=nz(-4,4),e=nz(-5,5);return mk(`Eine verschobene Normalparabel hat den Scheitelpunkt ${S(d,e)}. Welche Gleichung passt?`,sf(1,d,e),[sf(1,-d,e),sf(1,d,-e),sf(1,-d,-e)],`Scheitelform y = (x − d)² + e mit S(d|e). In der Klammer steht das Gegenteil von d.`,id)},
+()=>{const d=nz(-4,4),e=ri(-5,5);return mk(`Bestimme den Scheitelpunkt von p(x) = ${sf(1,d,e).slice(4)}.`,S(d,e),[S(-d,e),S(d,-e),S(e,d)],`Aus (x − d)² + e liest du S(d|e) ab. In der Klammer wechselt das Vorzeichen.`,id)},
+()=>{let a,d,e;do{a=pick([1,-1]);d=nz(-3,3);e=a>0?nz(-3,3):ri(1,5)}while(d==e||d==-e);return {...mk('Welcher Scheitelpunkt gehört zur gezeichneten Parabel?',S(d,e),[S(-d,e),S(d,-e),S(e,d)],`Lies den ${a>0?'tiefsten':'höchsten'} Punkt ab: ${S(d,e)}.`,id),gr:graph(a,d,e)}},
+()=>{const a=pick([1,-1]),d=nz(-3,3),e=a>0?nz(-3,3):ri(1,5);return {...mk('Welche Gleichung gehört zur gezeichneten Parabel?',sf(a,d,e),[sf(a,-d,e),sf(a,d,-e),sf(-a,d,e)],`Scheitel ${S(d,e)} ablesen, dann y = ±(x − d)² + e aufstellen. Die Parabel ist nach ${a>0?'oben':'unten'} geöffnet.`,id),gr:graph(a,d,e)}},
+()=>{const a=pick([1,-1]),d=nz(-3,3),e=a>0?nz(-3,3):ri(1,5),f=x=>a*(x-d)**2+e,k=shuffle([-2,-1,0,1,2]),bad=Pt(d+k[3],f(d+k[3])+pick([-2,-1,1,2]));
+  return {...mk('Einer dieser Punkte liegt nicht auf der gezeichneten Parabel. Welcher?',bad,k.slice(0,3).map(o=>Pt(d+o,f(d+o))),`Lies die Punkte am Graphen ab. ${bad} liegt neben der Parabel.`,id),gr:graph(a,d,e)}},
+()=>{const b=ri(-2,2),c=ri(-3,3),x=nz(-3,3),v=x*x+b*x+c,t=Math.random()<.5,y=t?v:v+pick([-2,-1,1,2]);
+  return mk(`Prüfe rechnerisch: Liegt T(${fmt(x)}|${fmt(y)}) auf der Parabel p(x) = x²${b?bx(b):''}${c?sg(c):''}?`,t?'Ja, T liegt auf p':'Nein, T liegt nicht auf p',[t?'Nein, T liegt nicht auf p':'Ja, T liegt auf p'],`Setze x = ${fmt(x)} ein: p(${fmt(x)}) = ${fmt(v)}. ${t?'Das passt zur y-Koordinate.':'Die y-Koordinate '+fmt(y)+' passt nicht.'}`,id)},
+()=>{const d=nz(-3,3),e=ri(-3,3),x=ri(-2,3),v=(x-d)**2+e;
+  return mk(`Der Punkt A(${fmt(x)}|y) liegt auf dem Graphen von f mit ${sf(1,d,e)}. Bestimme y.`,v,[(x+d)**2+e,(x-d)**2-e,(x-d)*2+e],`Setze x = ${fmt(x)} ein: (${fmt(x)} ${d>0?'−':'+'} ${Math.abs(d)})² ${e<0?'−':'+'} ${Math.abs(e)} = ${fmt(v)}.`)},
+()=>{const d=nz(-4,4);if(Math.random()<.5){const k=ri(1,3),g=nz(-5,5),e2=g-k;
+    return mk(`Die Parabel p mit ${sf(1,d,e2)} wird um ${k} nach oben verschoben und dann an der x-Achse gespiegelt. Wie lautet die neue Gleichung?`,sf(-1,d,-g),[sf(1,d,-g),sf(-1,d,g),sf(-1,d,e2)],`Nach oben: e wird zu ${fmt(g)}. Spiegeln an der x-Achse dreht alle Vorzeichen um.`,id)}
+  const e=ri(-4,4);return mk(`Die Parabel p mit ${sf(1,d,e)} wird an der y-Achse gespiegelt. Wie lautet die neue Gleichung?`,sf(1,-d,e),[sf(1,d,-e),sf(-1,d,e),sf(-1,-d,-e)],`Beim Spiegeln an der y-Achse wird aus ${S(d,e)} der Scheitel ${S(-d,e)}.`,id)},
+()=>{const a=1,r1=nz(-3,3);let r2;do r2=nz(-3,3);while(r2==r1);const b=-a*(r1+r2),c=a*r1*r2;
+  return mk(`Berechne die Nullstellen von y = ${qd(a,b,c)}.`,pr2(r1,r2),[pr2(-r1,-r2),pr2(r1,-r2),pr2(r1+1,r2)],a==1?`pq-Formel oder Vieta: x₁·x₂ = ${fmt(c)} und x₁ + x₂ = ${fmt(-b)}.`:`Erst durch ${a} teilen: x²${b/a?bx(b/a):''}${sg(c/a)} = 0. Dann pq-Formel.`,id)},
+()=>{const m=pick([2,3,-2,-3]),pt=(u,v)=>`${Pt(0,0)} und ${Pt(u,v)}`;
+  return mk(`Berechne die Schnittpunkte der Parabel p(x) = x² mit der Geraden g(x) = ${fmt(m)}x.`,pt(m,m*m),[pt(m,m),pt(-m,m*m),pt(m*m,m)],`Gleichsetzen: x² = ${fmt(m)}x, also x = 0 oder x = ${fmt(m)}. Dann y mit g(x) = ${fmt(m)}x berechnen.`,id)},
+()=>{const a=ri(2,6),k=ri(2,4),t=Math.random()<.5,w=t?[-a+k,-a-k]:[a+k,a-k];
+  return mk(`Wahr oder falsch? Zur Gleichung (x + ${a})² = ${k*k} gilt: Die Zahlen ${fmt(w[0])} und ${fmt(w[1])} sind Lösungen.`,t?'wahr':'falsch',[t?'falsch':'wahr'],`Wurzel ziehen: x + ${a} = ±${k}, also x = ${fmt(-a+k)} oder x = ${fmt(-a-k)}.`,id)},
+()=>{const a=ri(1,5),k=ri(2,5);
+  return mk('Welche Gleichung hat keine Lösung?',`(x + ${a})² = −${k}`,[`(x + ${a})² = ${k}`,`(x + ${a})² = 0`,`x² = ${k*k}`],`Ein Quadrat ist nie negativ. Deshalb hat (x + ${a})² = −${k} keine Lösung.`,id)},
+()=>{const s=ri(1,5);
+  return mk('Welche Normalparabel hat ihren Scheitelpunkt auf der y-Achse und keine Nullstellen?',sf(1,0,s),[sf(1,0,-s),sf(1,s,0),sf(1,-s,s)],`Scheitel auf der y-Achse heißt d = 0. Keine Nullstellen: e muss positiv sein. Also y = x² + ${s}.`,id)},
+()=>{const h=nz(-3,3),b=2*h,c=nz(-2,5),d=-h,e=c-h*h,t=Math.random()<.5,x=nz(-3,3),v=x*x+b*x+c;
+  const Q=[[`Der Punkt ${Pt(x,t?v:v+pick([-2,-1,1,2]))} liegt auf der Parabel.`,`Einsetzen: p(${fmt(x)}) = ${fmt(v)}.`],
+    [`Die Parabel schneidet die y-Achse im Punkt ${t?Pt(0,c):Pt(c,0)}.`,`Für x = 0 gilt p(0) = c = ${fmt(c)}. Der Schnittpunkt ist ${Pt(0,c)}.`]][ri(0,1)];
+  return mk(`Gegeben ist p(x) = x²${bx(b)}${sg(c)}. Stimmt die Aussage? ${Q[0]}`,t?'wahr':'falsch',[t?'falsch':'wahr'],Q[1],id)},
+()=>{let u,v;do{u=ri(-3,3);v=ri(-3,3)}while(u==v);const B=u+v,C=ri(2,6),Y=C+u*v;
+  return mk(`Gegeben ist p(x) = −x²${B?bx(B):''}${sg(C)}. Bestimme die x-Koordinaten der Punkte von p mit der y-Koordinate ${fmt(Y)}.`,pr2(u,v),[pr2(-u,-v),pr2(u,-v),pr2(u+1,v)],`Setze p(x) = ${fmt(Y)} und forme um: x²${B?bx(-B):''}${u*v?sg(u*v):''} = 0. Dann pq-Formel.`,id)},
+()=>{const d=nz(-3,3),sh=v=>`um ${Math.abs(v)} nach ${v>0?'rechts':'links'}`,sv=v=>`um ${Math.abs(v)} nach ${v>0?'oben':'unten'}`;
+  return {...mk('Die gezeichnete Parabel entsteht aus der Normalparabel y = x² durch eine Verschiebung. Wie wurde verschoben?',sh(d),[sh(-d),sv(d),sv(-d)],`Der Scheitelpunkt liegt bei ${S(d,0)}. Die Normalparabel hat ihren Scheitelpunkt bei S(0|0). Also wurde sie ${sh(d)} verschoben.`,id),gr:graph(1,d,0)}},
+()=>{const e=nz(-3,3),sh=v=>`um ${Math.abs(v)} nach ${v>0?'rechts':'links'}`,sv=v=>`um ${Math.abs(v)} nach ${v>0?'oben':'unten'}`;
+  return {...mk('Die gezeichnete Parabel entsteht aus der Normalparabel y = x² durch eine Verschiebung. Wie wurde verschoben?',sv(e),[sv(-e),sh(e),sh(-e)],`Der Scheitelpunkt liegt bei ${S(0,e)}. Die Normalparabel hat ihren Scheitelpunkt bei S(0|0). Also wurde sie ${sv(e)} verschoben.`,id),gr:graph(1,0,e)}},
+()=>{const d=nz(-4,4),sh=v=>`um ${Math.abs(v)} nach ${v>0?'rechts':'links'}`,sv=v=>`um ${Math.abs(v)} nach ${v>0?'oben':'unten'}`;
+  return mk(`Die Normalparabel y = x² wird zur Parabel ${sf(1,d,0)} verschoben. Wie wurde sie verschoben?`,sh(d),[sh(-d),sv(d),sv(-d)],`In der Klammer steht (x ${d>0?'−':'+'} ${Math.abs(d)}). Das Vorzeichen in der Klammer ist umgekehrt: Die Parabel wurde ${sh(d)} verschoben.`,id)},
+()=>{const e=nz(-5,5),sh=v=>`um ${Math.abs(v)} nach ${v>0?'rechts':'links'}`,sv=v=>`um ${Math.abs(v)} nach ${v>0?'oben':'unten'}`;
+  return mk(`Die Normalparabel y = x² wird zur Parabel ${sf(1,0,e)} verschoben. Wie wurde sie verschoben?`,sv(e),[sv(-e),sh(e),sh(-e)],`Die Zahl ${e>0?'+':'−'} ${Math.abs(e)} steht außerhalb der Klammer und verschiebt nach oben oder unten: ${sv(e)}.`,id)},
+()=>{let d,e;do{d=nz(-4,4);e=nz(-5,5)}while(Math.abs(d)==Math.abs(e));const sh=v=>`um ${Math.abs(v)} nach ${v>0?'rechts':'links'}`;
+  return mk(`Die Normalparabel y = x² wird zur Parabel ${sf(1,d,e)} verschoben. Um wie viel wurde sie nach rechts oder links verschoben?`,sh(d),[sh(-d),sh(e),sh(-e)],`Für die Verschiebung nach rechts oder links ist die Zahl in der Klammer wichtig: (x ${d>0?'−':'+'} ${Math.abs(d)}). Das Vorzeichen ist umgekehrt, also ${sh(d)}.`,id)},
+()=>{let d,e;do{d=nz(-4,4);e=nz(-5,5)}while(Math.abs(d)==Math.abs(e));const sv=v=>`um ${Math.abs(v)} nach ${v>0?'oben':'unten'}`;
+  return mk(`Die Normalparabel y = x² wird zur Parabel ${sf(1,d,e)} verschoben. Um wie viel wurde sie nach oben oder unten verschoben?`,sv(e),[sv(-e),sv(d),sv(-d)],`Für die Verschiebung nach oben oder unten ist die Zahl außerhalb der Klammer wichtig: ${e>0?'+':'−'} ${Math.abs(e)}. Also wurde die Parabel ${sv(e)} verschoben.`,id)}
+],
+exp:[
+()=>{const a=ri(1,3),b=pick([2,3]),x=ri(2,3),v=a*b**x;
+  return mk(`Gegeben ist f(x) = ${a}·${b}ˣ. Berechne f(${x}).`,v,[(a*b)**x,a*b*x,a+b**x],`Erst die Potenz: ${b}${sup(x)} = ${b**x}. Dann mal ${a}: ${v}.`)},
+()=>{const p=pick([3,5,8,12,20]);
+  return mk(`Ein Guthaben wächst jedes Jahr um ${p} %. Wie lautet der Wachstumsfaktor?`,1+p/100,[p/100,1-p/100,p],`Wachstum um p % bedeutet Faktor 1 + p/100 = ${fmt(1+p/100)}.`)},
+()=>{const a=pick([10,20]),t=ri(2,4),v=a*2**t;
+  return mk(`Eine Bakterienkultur startet mit ${a} Bakterien und verdoppelt sich jede Stunde. Wie viele sind es nach ${t} Stunden?`,v,[a*2*t,a+2*t,a*t*t],`Verdoppeln heißt Faktor 2 pro Stunde: ${a}·2${sup(t)} = ${v}.`)},
+()=>{const s=pick([80,160,240]),n=ri(2,3),v=s/2**n;
+  return mk(`Ein Wirkstoff im Blut halbiert sich jede Stunde. Am Anfang sind es ${s} mg. Wie viel ist nach ${n} Stunden noch da?`,v,[s/(2*n),s/2**(n-1),s-n*20],`Halbieren heißt Faktor 0,5: ${s}·0,5${sup(n)} = ${fmt(v)} mg.`,t=>fmt(t)+' mg')}
+]};
+
+const G1={lin:[
+// Steigung aus Funktionsgleichung
+()=>{const m=ri(1,4),n=ri(1,6);
+  return mk(`Wie groß ist die Steigung der Funktion f(x) = ${lin(m,n)}?`,m,[n,m+1,m+2],`Bei y = mx + n ist m die Steigung. Hier ist m = ${fmt(m)}.`)},
+()=>{const m=ri(1,4),n=ri(1,6),f=pick(['f','g','h']);
+  return mk(`Welche Steigung hat die Funktion ${f} mit ${f}(x) = ${lin(m,n)}?`,m,[n,m+1,m+2],`Bei y = mx + n ist m die Steigung. Hier ist m = ${fmt(m)}.`)},
+// Steigung aus Graph
+()=>{const m=ri(1,3),n=ri(1,3);
+  return {...mk('Wie groß ist die Steigung des gezeichneten Graphen?',m,[m+1,m+2,n],`Gehe von einem Punkt auf dem Graphen einen Schritt nach rechts. Dann geht es ${fmt(m)} nach oben. Also m = ${fmt(m)}.`),gr:graphF(x=>m*x+n,'#7dd3fc')}},
+// y-Achsenabschnitt aus Funktionsgleichung
+()=>{const m=ri(1,4),n=ri(1,6);
+  return mk(`Wie groß ist der y-Achsenabschnitt der Funktion f(x) = ${lin(m,n)}?`,n,[m,n+1,n+2],`Bei y = mx + n ist n der y-Achsenabschnitt. Hier ist n = ${fmt(n)}.`)},
+()=>{const m=ri(1,4),n=ri(1,6),f=pick(['f','g','h']);
+  return mk(`Welchen y-Achsenabschnitt hat die Funktion ${f} mit ${f}(x) = ${lin(m,n)}?`,n,[m,n+1,n+2],`Bei y = mx + n ist n der y-Achsenabschnitt. Hier ist n = ${fmt(n)}.`)},
+// y-Achsenabschnitt aus Graph
+()=>{const m=ri(1,2),n=ri(1,4);
+  return {...mk('Wie groß ist der y-Achsenabschnitt des gezeichneten Graphen?',n,[n+1,n+2,m],`Der y-Achsenabschnitt ist die Stelle, an der der Graph die y-Achse schneidet. Das ist bei y = ${fmt(n)}. Also n = ${fmt(n)}.`),gr:graphF(x=>m*x+n,'#7dd3fc')}},
+// Funktionsgleichung zum Graphen
+()=>{let m,n;do{m=ri(1,3);n=ri(1,3)}while(m==n);const eq=(a,b)=>`y = ${lin(a,b)}`;
+  return {...mk('Welche Funktionsgleichung gehört zum gezeichneten Graphen?',eq(m,n),[eq(n,m),eq(m,n+1),eq(m+1,n)],`Lies den y-Achsenabschnitt n = ${fmt(n)} ab. Von dort einen Schritt nach rechts: ${fmt(m)} nach oben, also m = ${fmt(m)}.`,id),gr:graphF(x=>m*x+n,'#7dd3fc')}},
+// Monoton steigend oder fallend am Graphen
+()=>{const up=Math.random()<.5,m=up?ri(1,3):ri(1,2),n=up?ri(1,3):ri(3,6);
+  return {...mk('Ist der gezeichnete Graph monoton steigend oder monoton fallend?',up?'monoton steigend':'monoton fallend',[up?'monoton fallend':'monoton steigend'],up?'Der Graph geht von links nach rechts nach oben. Er ist monoton steigend.':'Der Graph geht von links nach rechts nach unten. Er ist monoton fallend.',id),gr:graphF(x=>(up?m:-m)*x+n,'#7dd3fc')}},
+// Was ist eine Nullstelle?
+()=>mk('Was ist eine Nullstelle?','Schnittpunkt mit der x-Achse',['Schnittpunkt mit der y-Achse','Der Funktionswert an der Stelle x = 1','Die Steigung der Funktion'],'Eine Nullstelle ist ein Schnittpunkt der Funktion mit der x-Achse. Dort ist der Funktionswert 0.',id),
+// Nullstelle am Graphen ablesen
+()=>{const k=ri(1,2),r=ri(1,k==1?5:3),n=k*r;
+  return {...mk('Welche Nullstelle hat der gezeichnete Graph?',r,[n,r+1,r+2],`Die Nullstelle ist der Schnittpunkt mit der x-Achse. Der Graph schneidet die x-Achse bei x = ${fmt(r)}.`,v=>'x = '+fmt(v)),gr:graphF(x=>-k*x+n,'#7dd3fc')}},
+// Liegt der Punkt auf der Funktion?
+()=>{const m=ri(1,3),n=ri(1,4),t=Math.random()<.5,x=ri(1,4),y=m*x+n,py=t?y:y+(y>2&&Math.random()<.5?-pick([1,2]):pick([1,2]));
+  return mk(`Liegt der Punkt P${Pt(x,py)} auf dem Graphen der Funktion f(x) = ${lin(m,n)}?`,t?'Ja, P liegt auf dem Graphen':'Nein, P liegt nicht auf dem Graphen',[t?'Nein, P liegt nicht auf dem Graphen':'Ja, P liegt auf dem Graphen'],`Setze x = ${fmt(x)} ein: ${fmt(m)}·${fmt(x)}${sg(n)} = ${fmt(y)}. ${t?'Das ist die y-Koordinate von P, also liegt P auf dem Graphen.':'Die y-Koordinate von P ist aber '+fmt(py)+', also liegt P nicht auf dem Graphen.'}`,id)},
+// Liegt der Punkt auf dem gezeichneten Graphen?
+()=>{let m,n,x,y;do{m=ri(1,2);n=ri(1,3);x=ri(1,4);y=m*x+n}while(y>7);
+  const t=Math.random()<.5,py=t?y:y+(y>2&&Math.random()<.5?-pick([1,2]):pick([1,2]));
+  return {...mk(`Liegt der Punkt P${Pt(x,py)} auf dem gezeichneten Graphen?`,t?'Ja, P liegt auf dem Graphen':'Nein, P liegt nicht auf dem Graphen',[t?'Nein, P liegt nicht auf dem Graphen':'Ja, P liegt auf dem Graphen'],t?`Bei x = ${fmt(x)} hat der Graph die Höhe y = ${fmt(y)}. Das passt zu P, also liegt P auf dem Graphen.`:`Bei x = ${fmt(x)} hat der Graph die Höhe y = ${fmt(y)}, nicht ${fmt(py)}. Also liegt P nicht auf dem Graphen.`,id),gr:graphF(x=>m*x+n,'#7dd3fc')}},
+// Sachaufgabe: Preis berechnen
+()=>{const g=pick([2,3,4,5]),k=pick([1,2,3]),x=pick([3,4,5,6,8,10]),T=pick([
+    [`Ein Taxi kostet ${g} € Grundgebühr und ${k} € pro Kilometer. Wie viel kostet eine Fahrt von ${x} km?`,`${g} + ${k}·${x}`],
+    [`Ein Schwimmverein verlangt ${g} € Aufnahmegebühr und ${k} € pro Monat. Wie viel kostet die Mitgliedschaft nach ${x} Monaten?`,`${g} + ${k}·${x}`],
+    [`Lena hat ${g} € gespart und legt jeden Monat ${k} € dazu. Wie viel Geld hat sie nach ${x} Monaten?`,`${g} + ${k}·${x}`]]),v=g+k*x;
+  return mk(T[0],v,[k*x,g+k+x,(g+k)*x],`Rechne: ${T[1]} = ${v}.`,a=>fmt(a)+' €')},
+// Sachaufgabe: Funktionsgleichung aufstellen
+()=>{let g,k;do{g=pick([2,3,4,5]);k=pick([1,2,3,4])}while(g==k);const c=v=>v==1?'':v,e=(a,b)=>`K(x) = ${c(a)}x + ${b}`;
+  return mk(`Ein Taxi kostet ${g} € Grundgebühr und ${k} € pro Kilometer. Welche Gleichung beschreibt die Kosten K bei x Kilometern?`,e(k,g),[e(g,k),`K(x) = ${c(g+k)}x`,`K(x) = ${c(k)}x + ${g+k}`],`Der Preis pro Kilometer (${k} €) steht vor x. Die Grundgebühr (${g} €) kommt einmal dazu: K(x) = ${c(k)}x + ${g}.`,id)},
+// Sachaufgabe: Kerze
+()=>{let h,r,t,v;do{h=pick([20,30,40]);r=pick([1,2]);t=pick([5,10]);v=h-r*t}while(v<=0);
+  return mk(`Eine Kerze mit ${h} cm Höhe brennt jede Minute um ${fmt(r)} cm ab. Wie hoch ist sie nach ${t} Minuten?`,v,[h+r*t,r*t,h-r*(t+1)],`Höhe = ${h} − ${fmt(r)}·${t} = ${fmt(v)} cm.`,x=>fmt(x)+' cm')}
+],
+quad:[
+()=>mk('Was bewirkt ein anderer positiver Wert von a in y = a·(x − d)² + e, zum Beispiel a = 2 statt a = 1?','Streckung/Stauchung',['Verschiebung nach rechts/links', 'Verschiebung nach oben/unten', 'Spiegelung'],'Der Parameter a streckt oder staucht die Parabel. Bei a > 1 ist sie enger (gestreckt), bei 0 < a < 1 weiter (gestaucht).',id),
+()=>mk('Was bewirkt ein negatives a in y = a·(x − d)² + e, zum Beispiel a = −1?','Spiegelung',['Verschiebung nach rechts/links', 'Verschiebung nach oben/unten', 'Streckung/Stauchung'],'Ist a negativ, wird die Parabel an der x-Achse gespiegelt. Sie ist dann nach unten geöffnet.',id),
+()=>mk('Was bewirkt der Parameter d in y = a·(x − d)² + e?','Verschiebung nach rechts/links',['Verschiebung nach oben/unten', 'Streckung/Stauchung', 'Spiegelung'],'Der Parameter d verschiebt die Parabel nach rechts oder links. Der Scheitelpunkt liegt bei x = d.',id),
+()=>mk('Was bewirkt der Parameter e in y = a·(x − d)² + e?','Verschiebung nach oben/unten',['Verschiebung nach rechts/links', 'Streckung/Stauchung', 'Spiegelung'],'Der Parameter e verschiebt die Parabel nach oben oder unten. Der Scheitelpunkt liegt bei y = e.',id),
+()=>{const d=nz(-3,3),sh=v=>`um ${Math.abs(v)} nach ${v>0?'rechts':'links'}`,sv=v=>`um ${Math.abs(v)} nach ${v>0?'oben':'unten'}`;
+  return {...mk('Die gezeichnete Parabel entsteht aus der Normalparabel y = x² durch eine Verschiebung. Wie wurde verschoben?',sh(d),[sh(-d),sv(d),sv(-d)],`Der Scheitelpunkt liegt bei ${S(d,0)}. Die Normalparabel hat ihren Scheitelpunkt bei S(0|0). Also wurde sie ${sh(d)} verschoben.`,id),gr:graph(1,d,0)}},
+()=>{const e=nz(-3,3),sh=v=>`um ${Math.abs(v)} nach ${v>0?'rechts':'links'}`,sv=v=>`um ${Math.abs(v)} nach ${v>0?'oben':'unten'}`;
+  return {...mk('Die gezeichnete Parabel entsteht aus der Normalparabel y = x² durch eine Verschiebung. Wie wurde verschoben?',sv(e),[sv(-e),sh(e),sh(-e)],`Der Scheitelpunkt liegt bei ${S(0,e)}. Die Normalparabel hat ihren Scheitelpunkt bei S(0|0). Also wurde sie ${sv(e)} verschoben.`,id),gr:graph(1,0,e)}},
+()=>{const d=nz(-4,4),sh=v=>`um ${Math.abs(v)} nach ${v>0?'rechts':'links'}`,sv=v=>`um ${Math.abs(v)} nach ${v>0?'oben':'unten'}`;
+  return mk(`Die Normalparabel y = x² wird zur Parabel ${sf(1,d,0)} verschoben. Wie wurde sie verschoben?`,sh(d),[sh(-d),sv(d),sv(-d)],`In der Klammer steht (x ${d>0?'−':'+'} ${Math.abs(d)}). Das Vorzeichen in der Klammer ist umgekehrt: Die Parabel wurde ${sh(d)} verschoben.`,id)},
+()=>{const e=nz(-5,5),sh=v=>`um ${Math.abs(v)} nach ${v>0?'rechts':'links'}`,sv=v=>`um ${Math.abs(v)} nach ${v>0?'oben':'unten'}`;
+  return mk(`Die Normalparabel y = x² wird zur Parabel ${sf(1,0,e)} verschoben. Wie wurde sie verschoben?`,sv(e),[sv(-e),sh(e),sh(-e)],`Die Zahl ${e>0?'+':'−'} ${Math.abs(e)} steht außerhalb der Klammer und verschiebt nach oben oder unten: ${sv(e)}.`,id)},
+()=>{let d,e;do{d=nz(-4,4);e=nz(-5,5)}while(Math.abs(d)==Math.abs(e));const sh=v=>`um ${Math.abs(v)} nach ${v>0?'rechts':'links'}`;
+  return mk(`Die Normalparabel y = x² wird zur Parabel ${sf(1,d,e)} verschoben. Um wie viel wurde sie nach rechts oder links verschoben?`,sh(d),[sh(-d),sh(e),sh(-e)],`Für die Verschiebung nach rechts oder links ist die Zahl in der Klammer wichtig: (x ${d>0?'−':'+'} ${Math.abs(d)}). Das Vorzeichen ist umgekehrt, also ${sh(d)}.`,id)},
+()=>{let d,e;do{d=nz(-4,4);e=nz(-5,5)}while(Math.abs(d)==Math.abs(e));const sv=v=>`um ${Math.abs(v)} nach ${v>0?'oben':'unten'}`;
+  return mk(`Die Normalparabel y = x² wird zur Parabel ${sf(1,d,e)} verschoben. Um wie viel wurde sie nach oben oder unten verschoben?`,sv(e),[sv(-e),sv(d),sv(-d)],`Für die Verschiebung nach oben oder unten ist die Zahl außerhalb der Klammer wichtig: ${e>0?'+':'−'} ${Math.abs(e)}. Also wurde die Parabel ${sv(e)} verschoben.`,id)},
+()=>{let a,d,e;do{a=pick([1,-1]);d=nz(-3,3);e=a>0?nz(-3,3):ri(1,5)}while(d==e||d==-e);return {...mk('Welcher Scheitelpunkt gehört zur gezeichneten Parabel?',S(d,e),[S(-d,e),S(d,-e),S(e,d)],`Lies den ${a>0?'tiefsten':'höchsten'} Punkt ab: ${S(d,e)}.`,id),gr:graph(a,d,e)}},
+// Liegt der Punkt auf dem gezeichneten Graphen?
+()=>{const d=nz(-3,3),e=ri(-3,3),f=x=>(x-d)**2+e,k=ri(-2,2),t=Math.random()<.5,x=d+k,py=t?f(x):f(x)+pick([-2,-1,1,2]);
+  return {...mk(`Liegt der Punkt P${Pt(x,py)} auf dem gezeichneten Graphen?`,t?'Ja, P liegt auf dem Graphen':'Nein, P liegt nicht auf dem Graphen',[t?'Nein, P liegt nicht auf dem Graphen':'Ja, P liegt auf dem Graphen'],t?`Bei x = ${fmt(x)} hat der Graph die Höhe y = ${fmt(f(x))}. Das passt zu P, also liegt P auf dem Graphen.`:`Bei x = ${fmt(x)} hat der Graph die Höhe y = ${fmt(f(x))}, nicht ${fmt(py)}. Also liegt P nicht auf dem Graphen.`,id),gr:graph(1,d,e)}},
+// Welcher dieser Punkte liegt auf dem Graphen?
+()=>{const d=nz(-3,3),e=ri(-3,3),f=x=>(x-d)**2+e,k=shuffle([-2,-1,0,1,2]),good=Pt(d+k[0],f(d+k[0]));
+  return {...mk('Welcher dieser Punkte liegt auf dem gezeichneten Graphen?',good,k.slice(1,4).map(o=>Pt(d+o,f(d+o)+pick([-2,-1,1,2]))),`Lies am Graphen ab: Bei x = ${fmt(d+k[0])} hat er die Höhe y = ${fmt(f(d+k[0]))}. Also liegt ${good} auf dem Graphen.`,id),gr:graph(1,d,e)}},
+// Liegt der Punkt auf der Funktion?
+()=>{const d=nz(-3,3),e=nz(-3,3),x=d+ri(-2,2),v=(x-d)**2+e,t=Math.random()<.5,py=t?v:v+pick([-2,-1,1,2]);
+  return mk(`Liegt der Punkt P${Pt(x,py)} auf dem Graphen der Funktion f mit ${sf(1,d,e)}?`,t?'Ja, P liegt auf dem Graphen':'Nein, P liegt nicht auf dem Graphen',[t?'Nein, P liegt nicht auf dem Graphen':'Ja, P liegt auf dem Graphen'],`Setze x = ${fmt(x)} ein: (${fmt(x)} ${d>0?'−':'+'} ${Math.abs(d)})² ${e<0?'−':'+'} ${Math.abs(e)} = ${fmt(v)}. ${t?'Das ist die y-Koordinate von P, also liegt P auf dem Graphen.':'Die y-Koordinate von P ist aber '+fmt(py)+', also liegt P nicht auf dem Graphen.'}`,id)},
+// Verschiebung am Graphen: rechts/links und oben/unten
+()=>{const d=nz(-3,3),e=nz(-3,3),sh=v=>`um ${Math.abs(v)} nach ${v>0?'rechts':'links'}`,sv=v=>`um ${Math.abs(v)} nach ${v>0?'oben':'unten'}`;
+  return {...mk('Die gezeichnete Parabel entsteht aus der Normalparabel y = x² durch eine Verschiebung. Wie wurde verschoben?',`${sh(d)} und ${sv(e)}`,[`${sh(-d)} und ${sv(e)}`,`${sh(d)} und ${sv(-e)}`,`${sh(-d)} und ${sv(-e)}`],`Der Scheitelpunkt liegt bei ${S(d,e)}. Die Normalparabel hat ihren Scheitelpunkt bei S(0|0). Also wurde sie ${sh(d)} und ${sv(e)} verschoben.`,id),gr:graph(1,d,e)}},
+// Verschiebung an der Gleichung: rechts/links und oben/unten
+()=>{const d=nz(-4,4),e=nz(-5,5),sh=v=>`um ${Math.abs(v)} nach ${v>0?'rechts':'links'}`,sv=v=>`um ${Math.abs(v)} nach ${v>0?'oben':'unten'}`;
+  return mk(`Die Normalparabel y = x² wird zur Parabel ${sf(1,d,e)} verschoben. Wie wurde sie verschoben?`,`${sh(d)} und ${sv(e)}`,[`${sh(-d)} und ${sv(e)}`,`${sh(d)} und ${sv(-e)}`,`${sh(-d)} und ${sv(-e)}`],`In der Klammer steht (x ${d>0?'−':'+'} ${Math.abs(d)}). Das Vorzeichen ist umgekehrt: ${sh(d)}. Die Zahl außerhalb der Klammer (${e>0?'+':'−'} ${Math.abs(e)}) verschiebt ${sv(e)}.`,id)}
+]};
+const P={
+ lin:{n:'Linea',t:'Lineare Funktionen',c:'#7dd3fc',x:24,y:20},
+ quad:{n:'Parabolia',t:'Quadratische Funktionen',c:'#fbbf24',x:70,y:44},
+ exp:{n:'Expona',t:'Exponentialfunktionen',c:'#f472b6',x:28,y:70}};
+const curve={lin:'M12 78L88 26',quad:'M18 24Q50 104 82 24',exp:'M14 80Q60 78 86 16'};
+const svg=k=>{const c=P[k].c,T=TT.art;return `<svg viewBox="0 0 100 100" aria-hidden="true"><defs><radialGradient id="g${k}" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset=".35" stop-color="${c}"/><stop offset="1" stop-color="#1b1747"/></radialGradient><clipPath id="c${k}"><path d="${T.sil}"/></clipPath></defs><path d="${T.sil}" fill="url(#g${k})"/>${T.extra(c,k)}<path d="${curve[k]}" clip-path="url(#c${k})" fill="none" stroke="#1b1747" stroke-opacity=".55" stroke-width="4" stroke-linecap="round"/></svg>`};
+
+let got={},pos={x:80,y:82},busy=false,cur=null;
+
+const TH={lin:['#1f4f6e','#2f6f93'],quad:['#7a3c12','#a8681a'],exp:['#6e2050','#9c3a6e']};
+const DEC={lin:['🧊','🗻','❄️'],quad:['🌵','🌴','🍄'],exp:['🌺','🌱','🌴']};
+const MOB=['👽','👾','🦑','🪨','☄️'],WW=1400,WH=1000,W=360,H=280;
+DEC.lin.push('⛄','🏔️');DEC.quad.push('🌋');DEC.exp.push('🌿','🌸');
+const key={l:0,r:0,u:0,d:0,j:0};
+let best={};
+const bestKey=()=>level==1?'mm-best-l1':'mm-best';
+const boardKey=()=>level==1?'mm-board-l1':'mm-board';
+function loadBest(){try{best=JSON.parse(localStorage.getItem(bestKey())||'{}')}catch(e){best={}}}
+const fmtT=t=>Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
+function saveTime(k,t){L.nb=!(best[k]<=t);if(L.nb){best[k]=t;try{localStorage.setItem(bestKey(),JSON.stringify(best))}catch(e){}}}
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+let L={running:false},AC=null,mute=false;
+
+function tone(f,d,type='square',v=.06,to=0,delay=0){
+  if(mute)return;
+  AC=AC||new(window.AudioContext||window.webkitAudioContext)();
+  if(AC.state=='suspended')AC.resume();
+  const t=AC.currentTime+delay,o=AC.createOscillator(),g=AC.createGain();
+  o.type=type;o.frequency.setValueAtTime(f,t);if(to)o.frequency.exponentialRampToValueAtTime(to,t+d);
+  g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d);
+}
+function sfx(n){
+  const S={jump:()=>tone(300,.18,'square',.05,700),step:()=>tone(90,.05,'triangle',.03),locked:()=>tone(200,.15,'square',.04),
+    bump:()=>{tone(180,.25,'sawtooth',.07,520);tone(520,.2,'square',.05,180,.12)},
+    ok:()=>[523,659,784].forEach((f,i)=>tone(f,.16,'triangle',.08,0,i*.1)),
+    bad:()=>tone(160,.35,'sawtooth',.07,80),
+    fall:()=>tone(500,.8,'sine',.07,60),
+    win:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.25,'triangle',.08,0,i*.14))};
+  try{(S[n]||(()=>{}))()}catch(e){}
+}
+$('#mu').addEventListener('click',()=>{mute=!mute;$('#mu').textContent=mute?'🔇':'🔊'});
+
+[['#bl','l'],['#br','r'],['#bu','u'],['#bd','d'],['#bj','j']].forEach(([s,d])=>{const b=$(s);
+  b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture(e.pointerId);key[d]=1;b.classList.add('on')});
+  ['pointerup','pointercancel'].forEach(ev=>b.addEventListener(ev,()=>{key[d]=0;b.classList.remove('on')}));
+  b.addEventListener('contextmenu',e=>e.preventDefault())});
+const KM={ArrowLeft:'l',a:'l',ArrowRight:'r',d:'r',ArrowUp:'u',w:'u',ArrowDown:'d',s:'d',' ':'j'};
+addEventListener('keydown',e=>{const k=KM[e.key];if(!k)return;if(L.running&&L.state=='walk')e.preventDefault();key[k]=1});
+addEventListener('keyup',e=>{const k=KM[e.key];if(k)key[k]=0});
+
+function initLevel(){
+  const cv=$('#cv'),dpr=Math.min(2,devicePixelRatio||1),was=L.running;
+  cv.width=W*dpr;cv.height=H*dpr;const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);
+  const ph=[[100,120]];
+  const spot=m=>{for(let n=0;n<80;n++){const x=60+Math.random()*(WW-120),y=60+Math.random()*(WH-120);
+    if(ph.every(p=>Math.hypot(p[0]-x,p[1]-y)>m)){ph.push([x,y]);return{x,y}}}return{x:WW/2,y:WH/2}};
+  const cr={x:WW-110,y:WH-90};ph.push([cr.x,cr.y]);
+  const obs=shuffle(TT.mobs).map((e,i)=>{const p=spot(170);return{...p,hx:p.x,hy:p.y,vx:0,vy:0,w:0,e,g:cur.gs[i],cleared:false,t:0}});
+  const decor=Array.from({length:26},()=>({...spot(70),e:pick(TT.dec[cur.k])}));
+  const holes=Array.from({length:9},()=>({...spot(80),r:17}));
+  const craters=Array.from({length:18},()=>({x:Math.random()*WW,y:Math.random()*WH,r:14+Math.random()*22}));
+  Object.assign(L,{ended:false,prev:acc[cur.k]||0,t0:performance.now()-(acc[cur.k]||0)*1000,el:acc[cur.k]||0,nb:false,c,k:cur.k,px:100,py:120,dir:1,jz:0,jv:0,walk:0,st:0,hint:0,t:0,state:'walk',running:true,last:performance.now(),cr,obs,decor,craters,holes});
+  $('#qn').textContent=`Finde die 5 ${TT.mons} und lauf gegen sie. Achtung: ${TT.holes}!`;$('#qb').style.width='0';
+  if(!was)requestAnimationFrame(loop);
+}
+
+function loop(now){
+  if(!L.running)return;
+  const dt=Math.min(.05,(now-L.last)/1000);L.last=now;L.t+=dt;L.el=(now-L.t0)/1000;
+  L.obs.forEach(o=>{
+    if(o.cleared){o.t+=dt;return}
+    if(L.state!='walk')return;
+    o.w-=dt;
+    if(o.w<=0||Math.hypot(o.x-o.hx,o.y-o.hy)>110){const a=o.w<=0?Math.random()*6.283:Math.atan2(o.hy-o.y,o.hx-o.x);o.vx=Math.cos(a)*38;o.vy=Math.sin(a)*38;o.w=1+Math.random()*2}
+    o.x+=o.vx*dt;o.y+=o.vy*dt});
+  if(L.jz>0){L.jz+=L.jv*dt;L.jv-=900*dt;if(L.jz<=0){L.jz=0;L.jv=0}}
+  if(L.state=='walk'){
+    const vx=key.r-key.l,vy=key.d-key.u,n=Math.hypot(vx,vy)||1;
+    if(vx||vy){
+      L.px=clamp(L.px+vx/n*120*dt,20,WW-20);L.py=clamp(L.py+vy/n*120*dt,30,WH-10);
+      if(vx)L.dir=vx;L.walk+=dt;
+      if(!L.jz&&(L.st-=dt)<=0){L.st=.28;sfx('step')}
+    }
+    if(key.j&&!L.jz){L.jv=260;L.jz=.01;sfx('jump')}
+    if(L.jz<10)L.decor.forEach(d=>{const dx=L.px-d.x,dy=L.py-d.y,m=Math.hypot(dx,dy);if(m<26&&m>0){L.px=d.x+dx/m*26;L.py=d.y+dy/m*26}});
+    if(L.jz<8&&L.holes.some(h=>Math.hypot(L.px-h.x,L.py-h.y)<h.r)){L.state='fall';L.ft=0;sfx('fall');$('#qn').textContent=`Oh nein, du bist in ${TT.hole1} gefallen!`}
+    const o=L.state=='walk'&&L.obs.find(o=>!o.cleared&&Math.hypot(L.px-o.x,L.py-o.y)<40);
+    if(o){cur.tgt=o;L.state='bump';L.bt=0;key.l=key.r=key.u=key.d=key.j=0;sfx('bump');$('#qn').textContent='Ein '+TT.mon+'! Gleich kommt eine Frage …'}
+    else if(L.state=='walk'&&Math.hypot(L.px-L.cr.x,L.py-L.cr.y)<34){
+      if(cur.i==5){L.state='end';cur.last=true;$('#next').click()}
+      else if(L.t>L.hint){L.hint=L.t+2;$('#qn').textContent=`Der Kristall ist noch gesperrt. Finde erst alle 5 ${TT.mons}!`;sfx('locked')}
+    }
+  }
+  if(L.state=='bump'){L.bt+=dt;if(L.bt>1.4){L.state='quiz';show()}}
+  if(L.state=='fall'){L.ft+=dt;if(L.ft>1){const k=cur.k;acc[k]=L.el;start(k,true);$('#qn').textContent='Neuer Versuch auf '+P[k].n+'. Pass auf: '+TT.holes+'!'}}
+  draw();requestAnimationFrame(loop);
+}
+
+function draw(){
+  const c=L.c,th=TT.pal[L.k],mx=clamp(L.px-W/2,0,WW-W),my=clamp(L.py-H/2,0,WH-H);
+  c.fillStyle=th[1];c.fillRect(0,0,W,H);
+  c.strokeStyle='#ffffff1c';c.lineWidth=1;c.beginPath();
+  for(let x=-(mx%60);x<W;x+=60){c.moveTo(x,0);c.lineTo(x,H)}
+  for(let y=-(my%60);y<H;y+=60){c.moveTo(0,y);c.lineTo(W,y)}
+  c.stroke();
+  c.fillStyle=th[0];L.craters.forEach(r=>{c.beginPath();c.ellipse(r.x-mx,r.y-my,r.r,r.r*.55,0,0,7);c.fill()});
+  L.holes.forEach(h=>{const x=h.x-mx,y=h.y-my;c.fillStyle=TT.hole;c.beginPath();c.ellipse(x,y,h.r,h.r*.6,0,0,7);c.fill();c.strokeStyle=TT.rim;c.lineWidth=2;c.stroke()});
+  const it=[...L.decor.map(d=>({x:d.x,y:d.y,e:d.e})),...L.obs.filter(o=>!o.cleared||o.t<.9).map(o=>({x:o.x,y:o.y,e:o.e,o})),
+    {x:L.cr.x,y:L.cr.y,e:'💎',cr:1},{x:L.px,y:L.py,p:1}].sort((a,b)=>a.y-b.y);
+  c.textAlign='center';c.textBaseline='bottom';c.font='32px sans-serif';
+  it.forEach(i=>{
+    const x=i.x-mx,y=i.y-my;
+    if(x<-40||x>W+40||y<-20||y>H+60)return;
+    let lift=0,a=1;
+    if(i.o){if(i.o.cleared){lift=i.o.t*60;a=1-i.o.t/.9}else lift=Math.abs(Math.sin(L.t*3+i.x))*4}
+    if(i.cr&&cur.i<5)a=.4;
+    c.fillStyle='#0006';c.beginPath();c.ellipse(x,y,14,5,0,0,7);c.fill();
+    c.globalAlpha=a;
+    if(i.p){c.save();c.translate(x,y-L.jz);const f=L.state=='fall'?Math.max(0,1-L.ft):1;c.scale(L.dir*f,f);c.fillText(TT.hero,0,0);c.restore()}
+    else{c.fillText(i.e,x,y-lift);if(L.state=='bump'&&i.o===cur.tgt)c.fillText('❗',x,y-lift-34)}
+    c.globalAlpha=1;
+  });
+  c.font='600 16px Fredoka,system-ui,sans-serif';c.textAlign='right';c.textBaseline='top';c.fillStyle='#fff';c.strokeStyle='#10122e';c.lineWidth=3;c.strokeText('⏱ '+fmtT(L.el),W-8,6);c.fillText('⏱ '+fmtT(L.el),W-8,6);
+  const n=L.state=='walk'?(L.obs.filter(o=>!o.cleared).sort((a,b)=>Math.hypot(a.x-L.px,a.y-L.py)-Math.hypot(b.x-L.px,b.y-L.py))[0]||(cur.i==5?L.cr:null)):null;
+  if(n){const x=n.x-mx,y=n.y-my;if(x<0||x>W||y<0||y>H){
+    const ox=L.px-mx,oy=L.py-my,a=Math.atan2(y-oy,x-ox),ex=clamp(ox+Math.cos(a)*400,18,W-18),ey=clamp(oy+Math.sin(a)*400,18,H-18);
+    c.save();c.translate(ex,ey);c.rotate(a);c.fillStyle='#fff';c.strokeStyle='#10122e';c.lineWidth=3;c.beginPath();c.moveTo(12,0);c.lineTo(-8,-9);c.lineTo(-8,9);c.closePath();c.stroke();c.fill();c.restore()}}
+}
+
+function drawMap(){
+  $('#map').innerHTML=Object.keys(P).map(k=>`<button class="pl" data-k="${k}" style="left:${P[k].x}%;top:${P[k].y}%;--g:${P[k].c}" aria-label="${P[k].n}: ${P[k].t}">${svg(k)}<b>${P[k].n}${got[k]?' 💎':''}</b><small>${P[k].t}</small>${best[k]!=null?`<small>Bestzeit ${fmtT(best[k])}</small>`:''}</button>`).join('')
+   +`<span class="home" style="left:80%;top:90%">${TT.home}</span><span class="astro" id="astro" style="left:${pos.x}%;top:${pos.y}%">${TT.hero}</span>`;
+  const n=Object.keys(got).length;
+  $('#cr').textContent=`💎 ${n} von 3`;
+  $('#win').classList.toggle('hide',n<3);
+}
+
+$('#map').addEventListener('click',e=>{
+  const b=e.target.closest('.pl');if(!b||busy)return;
+  busy=true;const k=b.dataset.k;
+  pos={x:P[k].x+13,y:P[k].y-9};
+  const a=$('#astro');a.style.left=pos.x+'%';a.style.top=pos.y+'%';
+  setTimeout(()=>{busy=false;start(k)},1200);
+});
+
+function start(k,retry){
+  if(got[k]&&!retry)acc[k]=0;
+  const pool=(level==1&&G1[k])||G[k];const gs=shuffle(pool.slice());gs.push(pick(pool));
+  cur={k,i:0,score:0,gs,done:false,miss:false,last:false};initLevel();
+  $('#vmap').classList.add('hide');$('#vquiz').classList.remove('hide');
+  $('#vquiz').style.setProperty('--c',P[k].c);
+  $('#qt').textContent=`${P[k].n}: ${P[k].t}`;
+  $('#res').classList.add('hide');$('#qc').classList.add('hide');
+  scrollTo(0,0);
+}
+
+function show(){
+  const q=cur.q=cur.tgt.g();cur.done=true;$('#opts').style.opacity=.4;setTimeout(()=>{cur.done=false;$('#opts').style.opacity=1},900);$('#qc').classList.remove('hide');
+  $('#qn').textContent=`Aufgabe ${cur.i+1} von 5`;
+  $('#qb').style.width=(cur.i/5*100)+'%';
+  $('#gr').innerHTML=q.gr||'';$('#qq').textContent=q.q;
+  $('#opts').innerHTML=q.o.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join('');
+  $('#fb').textContent='';$('#next').classList.add('hide');
+}
+
+$('#opts').addEventListener('click',e=>{
+  const b=e.target.closest('.opt');if(!b||cur.done)return;
+  cur.done=true;
+  const q=cur.q,right=q.o[+b.dataset.i]===q.a;
+  [...$('#opts').children].forEach((el,i)=>{
+    if(q.o[i]===q.a){el.classList.add('ok');el.textContent='✓ '+q.o[i]}
+    else if(el===b){el.classList.add('bad');el.textContent='✗ '+q.o[i]}
+  });
+  if(!cur.miss){qs.a++;if(right)qs.r++}
+  cur.last=right;sfx(right?'ok':'bad');if(right&&!cur.miss)cur.score++;if(!right)cur.miss=true;
+  $('#fb').textContent=(right?'Richtig! ':'Nicht ganz. ')+q.e;
+  $('#next').textContent=right?'Weiter laufen':'Nochmal versuchen';
+  $('#next').classList.remove('hide');
+});
+
+$('#next').addEventListener('click',()=>{
+  if(!cur.last){show();return}
+  if(cur.i<5){const o=cur.tgt;o.cleared=true;cur.i++;cur.miss=false;$('#qb').style.width=(cur.i/5*100)+'%';$('#qc').classList.add('hide');$('#qn').textContent='Weiter nach rechts laufen.';L.state='walk';return}
+  const ok=cur.score>=4;L.ended=true;const tot=L.el;acc[cur.k]=tot;if(ok){got[cur.k]=1;runs[cur.k]=tot;saveTime(cur.k,tot)}sfx(ok?'win':'bad');
+  $('#qb').style.width='100%';
+  $('#qc').classList.add('hide');$('#res').classList.remove('hide');
+  $('#rt').textContent=ok?'Kristall geborgen!':'Noch kein Kristall';
+  $('#rp').textContent=`${cur.score} von 5 richtig. Zeit: ${fmtT(L.el)}${L.prev>=1?' (inklusive früherer Versuche)':''}${ok&&L.nb?' (neue Bestzeit!)':''}. `+(ok?'Super, weiter zum nächsten Ort.':'Du brauchst mindestens 4. Versuch es noch einmal, die Aufgaben sind jedes Mal neu.');
+});
+
+$('#back').addEventListener('click',()=>{if(L.running&&!L.ended&&L.k)acc[L.k]=L.el;L.running=false;
+  $('#vquiz').classList.add('hide');$('#vmap').classList.remove('hide');drawMap();scrollTo(0,0);if(Object.keys(got).length==3)showFin();
+});
+$('#again').addEventListener('click',()=>{got={};runs={};acc={};qs={a:0,r:0};pos={x:80,y:82};drawMap();$('#vmap').classList.add('hide');$('#vlevel').classList.remove('hide');scrollTo(0,0)});
+
+const CD=['🕯️','⚔️','🛡️','🏺'];
+const THEMES={
+ space:{name:'Weltall',sub:'3 Planeten',ico:'🚀',bg:['#2a1f6b','#0d0b26'],dot:'#fff',dots:70,
+  names:['Linea','Parabolia','Expona'],hero:'🧑‍🚀',home:'🌍',go:'Tippe auf einen Planeten und flieg los.',
+  mons:'Aliens',mon:'Alien',hole1:'ein Loch',holes:'schwarze Löcher',holesD:'schwarzen Löchern',
+  pal:TH,dec:DEC,mobs:MOB,hole:'#05030f',rim:'#ffffff66',
+  art:{sil:'M6 50a44 44 0 1 0 88 0a44 44 0 1 0-88 0Z',extra:(c,k)=>k=='quad'?`<ellipse cx="50" cy="50" rx="49" ry="12" fill="none" stroke="${c}" stroke-opacity=".6" stroke-width="3" transform="rotate(-20 50 50)"/>`:''}},
+ sea:{name:'Meer',sub:'3 Inseln',ico:'🌊',bg:['#0e6a9a','#04223a'],dot:'#bfeeff',dots:40,big:1,
+  names:['Lineara','Parabola','Exponia'],hero:'🤿',home:'🚢',go:'Tippe auf eine Insel und tauch los.',
+  mons:'Meeresmonster',mon:'Meeresmonster',hole1:'einen Strudel',holes:'Strudel im Wasser',holesD:'Strudeln im Wasser',
+  pal:{lin:['#b79f55','#e2cf8f'],quad:['#b9824a','#e8bd7e'],exp:['#7f9f62','#b3d08a']},
+  dec:{lin:['🌴','🐚','⚓'],quad:['🌴','🐚','🌿'],exp:['🌿','🌴','🐚']},mobs:['🦀','🐙','🦈','🐡','🦑'],hole:'#0a2a4a',rim:'#9fe8ff',
+  art:{sil:'M4 82Q50 6 96 82Z',extra:()=>`<ellipse cx="50" cy="84" rx="46" ry="9" fill="#1d6fa5" opacity=".75"/><text x="50" y="54" font-size="30" text-anchor="middle">🌴</text>`}},
+ castle:{name:'Burg',sub:'3 Türme',ico:'🏰',bg:['#4a3550','#150f1c'],dot:'#ffb35a',dots:30,
+  names:['Turm Linea','Turm Parabolia','Turm Expona'],hero:'🧙',home:'🏰',go:'Tippe auf einen Turm und lauf los.',
+  mons:'Monster',mon:'Monster',hole1:'eine Fallgrube',holes:'Fallgruben',holesD:'Fallgruben',
+  pal:{lin:['#4a5568','#718096'],quad:['#6b4a3a','#8d6a56'],exp:['#3f5a4a','#5f8570']},
+  dec:{lin:CD,quad:CD,exp:CD},mobs:['🐉','👻','🦇','💀','🕷️'],hole:'#120a06',rim:'#c9a36a',
+  art:{sil:'M24 92V38H31V28H41V38H45V28H55V38H59V28H69V38H76V92Z',extra:()=>`<path d="M44 92V70Q50 60 56 70V92Z" fill="#2a1a10"/><text x="50" y="22" font-size="20" text-anchor="middle">🚩</text>`}}
+};
+let TT=THEMES.space;
+function setTheme(id){
+  TT=THEMES[id];
+  ['lin','quad','exp'].forEach((k,i)=>P[k].n=TT.names[i]);
+  document.documentElement.style.background=TT.bg[1];
+  document.body.style.background=`radial-gradient(120% 80% at 70% 0%,${TT.bg[0]} 0%,${TT.bg[1]} 60%) fixed`;
+  const st=$('#stars');st.innerHTML='';
+  for(let i=0;i<TT.dots;i++){const d=document.createElement('i'),z=(TT.big?4:1)+Math.random()*(TT.big?6:2);
+    d.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${z}px;height:${z}px;opacity:${Math.random()*.5+.2};background:${TT.dot}`;st.appendChild(d)}
+  $('#mapnote').textContent=`${TT.go} Dort musst du 5 ${TT.mons} finden und anlaufen. Löse ihre Aufgaben: Ab 4 Treffern im ersten Versuch gibt es einen Kristall.`;
+  $('#qhint').textContent=`Lauf mit den Pfeiltasten gegen die ${TT.mons}. Springen: Leertaste. Wenn du sie anrempelst, kommt die Frage. Vorsicht vor ${TT.holesD} im Boden: Wer hineinfällt, startet neu. Du kannst darüber springen.`;
+}
+const LEVELS={1:{ico:'🌱',name:'Level 1',sub:'einfach',bg:['#0f766e','#115e59']},2:{ico:'🚀',name:'Level 2',sub:'schwieriger',bg:['#7c3aed','#5b21b6']}};
+let level=null;
+$('#lcs').innerHTML=Object.keys(LEVELS).map(l=>`<button class="tc" data-l="${l}" style="background:linear-gradient(135deg,${LEVELS[l].bg[0]},${LEVELS[l].bg[1]})"><span class="ti">${LEVELS[l].ico}</span><b>${LEVELS[l].name}</b><small>${LEVELS[l].sub}</small></button>`).join('');
+$('#lcs').addEventListener('click',e=>{const b=e.target.closest('.tc');if(!b)return;
+  const l=+b.dataset.l;if(level!==null&&l!==level){got={};runs={};acc={};qs={a:0,r:0};pos={x:80,y:82}}
+  level=l;loadBest();
+  $('#vlevel').classList.add('hide');$('#vtheme').classList.remove('hide');scrollTo(0,0)});
+$('#tcs').innerHTML=Object.keys(THEMES).map(id=>`<button class="tc" data-t="${id}" style="background:linear-gradient(135deg,${THEMES[id].bg[0]},${THEMES[id].bg[1]})"><span class="ti">${THEMES[id].ico}</span><b>${THEMES[id].name}</b><small>${THEMES[id].sub}</small></button>`).join('');
+$('#tcs').addEventListener('click',e=>{const b=e.target.closest('.tc');if(!b)return;
+  setTheme(b.dataset.t);pos={x:80,y:82};drawMap();$('#vtheme').classList.add('hide');$('#vmap').classList.remove('hide');scrollTo(0,0)});
+$('#chg').addEventListener('click',()=>{$('#vmap').classList.add('hide');$('#vtheme').classList.remove('hide');scrollTo(0,0)});
+let runs={},acc={},qs={a:0,r:0},fin={saved:false,t:0},rainId=0;
+const pct=()=>qs.a?Math.round(qs.r/qs.a*100):0;
+const esc=t=>t.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const loadBoard=()=>{try{return JSON.parse(localStorage.getItem(boardKey())||'[]')}catch(e){return[]}};
+const boardHTML=me=>{const b=loadBoard();return b.length?b.slice(0,10).map((e,i)=>`<div class="r${e.id===me?' me':''}"><span>${i+1}. ${esc(String(e.n))}</span><b>${fmtT(e.t)}${e.p!=null?` · ${e.p} %`:''}</b></div>`).join(''):'<p class="note">Noch keine Einträge.</p>'};
+function drawGem(c,g){
+  const s=g.s,h=g.h;c.save();c.translate(g.x,g.y);c.rotate(g.r);
+  c.fillStyle=`hsl(${h} 85% 58%)`;c.beginPath();c.moveTo(-s/2,-s/4);c.lineTo(-s/4,-s/2);c.lineTo(s/4,-s/2);c.lineTo(s/2,-s/4);c.lineTo(0,s/2);c.closePath();c.fill();
+  c.fillStyle=`hsl(${h} 90% 78%)`;c.beginPath();c.moveTo(-s/2,-s/4);c.lineTo(-s/4,-s/2);c.lineTo(s/4,-s/2);c.lineTo(s/2,-s/4);c.closePath();c.fill();
+  c.strokeStyle='#ffffffaa';c.lineWidth=1.2;c.beginPath();c.moveTo(-s/8,-s/4);c.lineTo(0,s/2);c.moveTo(s/8,-s/4);c.lineTo(0,s/2);c.moveTo(-s/2,-s/4);c.lineTo(s/2,-s/4);c.moveTo(-s/4,-s/2);c.lineTo(-s/8,-s/4);c.moveTo(s/4,-s/2);c.lineTo(s/8,-s/4);c.stroke();c.restore();
+}
+function startRain(){
+  const cv=$('#rain'),c=cv.getContext('2d'),d=Math.min(2,devicePixelRatio||1),X=innerWidth,Y=innerHeight,still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  cv.width=X*d;cv.height=Y*d;c.setTransform(d,0,0,d,0,0);
+  const gs=Array.from({length:still?30:70},()=>({x:Math.random()*X,y:still?Math.random()*Y:-Math.random()*Y,s:16+Math.random()*26,h:pick([0,30,50,120,170,200,260,300,330])+ri(-10,10),r:Math.random()*6,v:60+Math.random()*110,w:Math.random()*2-1,vr:(Math.random()-.5)*2}));
+  const id=++rainId;let last=performance.now();
+  const frame=now=>{if(id!=rainId)return;const dt=Math.min(.05,(now-last)/1000);last=now;c.clearRect(0,0,X,Y);
+    gs.forEach(g=>{if(!still){g.y+=g.v*dt;g.x+=g.w*20*dt;g.r+=g.vr*dt;if(g.y>Y+40){g.y=-40;g.x=Math.random()*X}}drawGem(c,g)});
+    if(!still)requestAnimationFrame(frame)};
+  requestAnimationFrame(frame);
+}
+function showFin(){
+  fin={saved:false,p:pct(),t:['lin','quad','exp'].reduce((a,k)=>a+(runs[k]||0),0)};
+  $('#ftime').textContent=`Level ${level}. Deine Gesamtzeit: ${fmtT(fin.t)}, richtig beantwortet: ${fin.p} %`;
+  $('#fform').classList.remove('hide');$('#fname').value='';
+  $('#fboard').innerHTML=boardHTML(null);
+  $('#fin').classList.remove('hide');startRain();sfx('win');
+}
+$('#fsave').addEventListener('click',()=>{
+  if(fin.saved)return;
+  const n=$('#fname').value.trim().slice(0,16)||'Anonym',id=Date.now(),b=loadBoard();
+  b.push({id,n,t:fin.t,p:fin.p});b.sort((x,y)=>x.t-y.t);
+  try{localStorage.setItem(boardKey(),JSON.stringify(b.slice(0,50)))}catch(e){}
+  fin.saved=true;$('#fform').classList.add('hide');
+  $('#ftime').textContent=`Level ${level}. Deine Gesamtzeit: ${fmtT(fin.t)}, richtig beantwortet: ${fin.p} %, Platz ${b.findIndex(e=>e.id===id)+1}`;
+  $('#fboard').innerHTML=boardHTML(id);
+});
+$('#fname').addEventListener('keydown',e=>{if(e.key=='Enter')$('#fsave').click()});
+$('#fmap').addEventListener('click',()=>{rainId++;$('#fin').classList.add('hide')});
+$('#fagain').addEventListener('click',()=>{rainId++;$('#fin').classList.add('hide');got={};runs={};acc={};qs={a:0,r:0};pos={x:80,y:82};drawMap();$('#vmap').classList.add('hide');$('#vlevel').classList.remove('hide');scrollTo(0,0)});
+setTheme('space');
+drawMap();
+</script>
+<script>if('serviceWorker' in navigator&&location.protocol.startsWith('http')){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}</script>
+</body>
+</html>
